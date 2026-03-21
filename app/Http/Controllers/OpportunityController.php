@@ -96,4 +96,13 @@ class OpportunityController extends Controller
 
         return redirect()->route('opportunities.index')->with('success', 'Etapa actualizada correctamente.');
     }
+       
+    public function searchCustomers(Request $request, CustomerService $customerService)
+    {
+        $term = $request->get('term', '');
+
+        $customers = $customerService->searchCustomers($term);
+
+        return response()->json($customers);
+    }
 }

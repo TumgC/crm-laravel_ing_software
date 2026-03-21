@@ -36,14 +36,31 @@
 <div class="bg-white p-6 rounded-xl shadow-sm border max-w-3xl">
     <form method="POST" action="{{ route('opportunities.store') }}" class="space-y-5">
         @csrf
-
-        <div>
-            <label class="block text-sm font-medium text-slate-700">Cliente (Customer ID)</label>
-            <input type="number" name="customer_id" value="{{ old('customer_id') }}"
-                   class="mt-1 w-full rounded-lg border-slate-300 focus:border-indigo-500 focus:ring-indigo-500"
-                   placeholder="Ej: 1" required>
+        
+        <div class="mb-4">
+            <label for="customer_search" class="block font-medium text-sm text-gray-700">Buscar cliente</label>
+            <input
+                type="text"
+                id="customer_search"
+                class="w-full border rounded-lg px-3 py-2"
+                placeholder="Buscar por nombre, apellido o DPI"
+                autocomplete="off"
+            >
+            <div id="customer_results" class="border rounded-lg bg-white mt-1 hidden"></div>
         </div>
 
+        <div class="mb-4">
+            <label for="customer_selected" class="block font-medium text-sm text-gray-700">Cliente seleccionado</label>
+            <input
+                type="text"
+                id="customer_selected"
+                class="w-full border rounded-lg px-3 py-2 bg-gray-100"
+                placeholder="Aún no se ha seleccionado un cliente"
+                readonly
+            >
+        </div>
+
+<input type="hidden" name="customer_id" id="customer_id" value="{{ old('customer_id') }}">
         <div>
             <label class="block text-sm font-medium text-slate-700">Descripción de la Oportunidad</label>
             <textarea name="description" rows="4"
@@ -90,3 +107,64 @@
 </div>
 
 @endsection
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById('customer_search');
+    const resultsBox = document.getElementById('customer_results');
+    const customerIdInput = document.getElementById('customer_id');
+    const customerSelectedInput = document.getElementById('customer_selected');
+
+    if (searchInput) {
+        searchInput.addEventListener('input', async function () {
+            const term = this.value.trim();
+
+            if (term.length < 2) {
+                resultsBox.innerHTML = '';
+                resultsBox.classList.add('hidden');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/opportunities/search-customers?term=${encodeURIComponent(term)}`);
+                const customers = await response.json();
+
+                if (!customers.length) {
+                    resultsBox.innerHTML = '<div class="px-3 py-2 text-sm text-gray-500">No se encontraron clientes</div>';
+                    resultsBox.classList.remove('hidden');
+                    return;
+                }
+
+                resultsBox.innerHTML = customers.map(customer => `
+                    <div class="px-3 py-2 hover:bg-gray-100 cursor-pointer customer-option"
+                         data-id="${customer.id}"
+                         data-name="${customer.first_name} ${customer.last_name}"
+                         data-dpi="${customer.dpi}">
+                        <strong>${customer.first_name} ${customer.last_name}</strong><br>
+                        <small>DPI: ${customer.dpi} | ID: ${customer.id}</small>
+                    </div>
+                `).join('');
+
+                resultsBox.classList.remove('hidden');
+
+                document.querySelectorAll('.customer-option').forEach(option => {
+                    option.addEventListener('click', function () {
+                        const id = this.dataset.id;
+                        const name = this.dataset.name;
+                        const dpi = this.dataset.dpi;
+
+                        customerIdInput.value = id;
+                        customerSelectedInput.value = `${name} - DPI: ${dpi} - ID: ${id}`;
+                        searchInput.value = name;
+                        resultsBox.innerHTML = '';
+                        resultsBox.classList.add('hidden');
+                    });
+                });
+            } catch (error) {
+                resultsBox.innerHTML = '<div class="px-3 py-2 text-sm text-red-500">Error al buscar clientes</div>';
+                resultsBox.classList.remove('hidden');
+            }
+        });
+    }
+});
+</script>

@@ -44,26 +44,59 @@
             @csrf
 
             {{-- Customer ID --}}
-            <div>
-                <label class="block text-sm font-medium text-slate-700 mb-1">Customer ID</label>
-                <input type="number" name="customer_id" value="{{ old('customer_id') }}"
-                       class="w-full rounded-lg border px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500"
-                       placeholder="Ej: 5" required>
-                <p class="text-xs text-slate-400 mt-1">(Por ahora: válido del 1 al 10 en el servicio simulado)</p>
+         <div class="mb-4">
+                <label for="customer_search" class="block font-medium text-sm text-gray-700">Buscar cliente</label>
+                <input
+                    type="text"
+                    id="customer_search"
+                    class="w-full border rounded-lg px-3 py-2"
+                    placeholder="Buscar por nombre, apellido o DPI"
+                    autocomplete="off"
+                >
+                <div id="customer_results" class="border rounded-lg bg-white mt-1 hidden"></div>
             </div>
+
+            <div class="mb-4">
+                <label for="customer_selected" class="block font-medium text-sm text-gray-700">Cliente seleccionado</label>
+                <input
+                    type="text"
+                    id="customer_selected"
+                    class="w-full border rounded-lg px-3 py-2 bg-gray-100"
+                    placeholder="Aún no se ha seleccionado un cliente"
+                    readonly
+                >
+            </div>
+
+            <input type="hidden" name="customer_id" id="customer_id" value="{{ old('customer_id') }}">
 
             {{-- Subject --}}
             <div>
                 <label class="block text-sm font-medium text-slate-700 mb-1">Asunto</label>
-                <input type="text" name="subject" value="{{ old('subject') }}"
+                <input type="text" name="subject" id="subject" class="w-full border rounded-lg px-3 py-2" 
+                        value="{{ old('subject') }}"
                        class="w-full rounded-lg border px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500"
                        placeholder="Ej: No puedo iniciar sesión" required>
+            </div>
+
+            {{-- LogErr --}}
+            <div class="mb-4">
+                <label for="common_issue" class="block font-medium text-sm text-gray-700">Problema frecuente</label>
+                <select id="common_issue" class="w-full border rounded-lg px-3 py-2">
+                    <option value="">Selecciona una opción</option>
+                    <option value="No puedo iniciar sesión">No puedo iniciar sesión</option>
+                    <option value="Olvidé mi contraseña">Olvidé mi contraseña</option>
+                    <option value="Error al generar factura">Error al generar factura</option>
+                    <option value="Problema con acceso al sistema">Problema con acceso al sistema</option>
+                    <option value="Consulta sobre pedido">Consulta sobre pedido</option>
+                    <option value="Fallo en actualización de datos">Fallo en actualización de datos</option>
+                </select>
             </div>
 
             {{-- Description --}}
             <div>
                 <label class="block text-sm font-medium text-slate-700 mb-1">Descripción</label>
                 <textarea name="description" rows="5"
+                          id="description"
                           class="w-full rounded-lg border px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500"
                           placeholder="Describe el problema..." required>{{ old('description') }}</textarea>
             </div>
@@ -119,3 +152,83 @@
     </div>
 </div>
 @endsection
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById('customer_search');
+    const resultsBox = document.getElementById('customer_results');
+    const customerIdInput = document.getElementById('customer_id');
+    const customerSelectedInput = document.getElementById('customer_selected');
+    const commonIssueSelect = document.getElementById('common_issue');
+    const subjectInput = document.getElementById('subject');
+    const descriptionInput = document.getElementById('description');
+
+    if (searchInput) {
+        searchInput.addEventListener('input', async function () {
+            const term = this.value.trim();
+
+            if (term.length < 2) {
+                resultsBox.innerHTML = '';
+                resultsBox.classList.add('hidden');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/tickets/search-customers?term=${encodeURIComponent(term)}`);
+                const customers = await response.json();
+
+                if (!customers.length) {
+                    resultsBox.innerHTML = '<div class="px-3 py-2 text-sm text-gray-500">No se encontraron clientes</div>';
+                    resultsBox.classList.remove('hidden');
+                    return;
+                }
+
+                resultsBox.innerHTML = customers.map(customer => `
+                    <div class="px-3 py-2 hover:bg-gray-100 cursor-pointer customer-option"
+                         data-id="${customer.id}"
+                         data-name="${customer.first_name} ${customer.last_name}"
+                         data-dpi="${customer.dpi}">
+                        <strong>${customer.first_name} ${customer.last_name}</strong><br>
+                        <small>DPI: ${customer.dpi} | ID: ${customer.id}</small>
+                    </div>
+                `).join('');
+
+                resultsBox.classList.remove('hidden');
+
+                document.querySelectorAll('.customer-option').forEach(option => {
+                    option.addEventListener('click', function () {
+                        const id = this.dataset.id;
+                        const name = this.dataset.name;
+                        const dpi = this.dataset.dpi;
+
+                        customerIdInput.value = id;
+                        customerSelectedInput.value = `${name} - DPI: ${dpi} - ID: ${id}`;
+                        searchInput.value = name;
+                        resultsBox.innerHTML = '';
+                        resultsBox.classList.add('hidden');
+                    });
+                });
+            } catch (error) {
+                resultsBox.innerHTML = '<div class="px-3 py-2 text-sm text-red-500">Error al buscar clientes</div>';
+                resultsBox.classList.remove('hidden');
+            }
+        });
+    }
+
+    if (commonIssueSelect) {
+        commonIssueSelect.addEventListener('change', function () {
+            const value = this.value;
+
+            if (!value) return;
+
+            if (subjectInput && subjectInput.value.trim() === '') {
+                subjectInput.value = value;
+            }
+
+            if (descriptionInput && descriptionInput.value.trim() === '') {
+                descriptionInput.value = `El cliente reporta el siguiente problema: ${value}.`;
+            }
+        });
+    }
+});
+</script>

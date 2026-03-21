@@ -172,6 +172,13 @@ class TicketController extends Controller
                 ->route('tickets.show', $ticket)
                 ->with('success', 'Ticket actualizado correctamente.');
         }
+        public function searchCustomers(Request $request, CustomerService $customerService)
+        {
+             $term = $request->get('term', '');
 
+             $customers = $customerService->searchCustomers($term);
+
+            return response()->json($customers);
+        }
 
 }

@@ -4,7 +4,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\DashboardController;
-    use App\Http\Controllers\OpportunityController;
+use App\Http\Controllers\OpportunityController;
 
 
 Route::get('/', function () {
@@ -27,6 +27,11 @@ Route::get('/tickets/create', [TicketController::class, 'create'])
     ->middleware(['auth'])
     ->name('tickets.create');
 
+Route::get('/tickets/search-customers', [TicketController::class, 'searchCustomers'])
+    ->name('tickets.search-customers');
+ 
+    
+    
 Route::post('/tickets', [TicketController::class, 'store'])
     ->middleware(['auth'])
     ->name('tickets.store');
@@ -61,6 +66,9 @@ Route::get('/opportunities/create', [OpportunityController::class, 'create'])
 Route::post('/opportunities', [OpportunityController::class, 'store'])
     ->middleware(['auth'])
     ->name('opportunities.store');
+    
+Route::get('/opportunities/search-customers', [OpportunityController::class, 'searchCustomers'])
+    ->name('opportunities.search-customers');
 
 // H2: cambio de etapa
 Route::get('/opportunities/{opportunity}/stage', [OpportunityController::class, 'stageForm'])

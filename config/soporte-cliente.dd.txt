@@ -1,0 +1,58 @@
+// Diagrama de Contexto
+```mermaid
+C4Context
+    title CRM - Módulo de Soporte al Cliente
+    Person(cliente, "Cliente", "Reporta problemas y solicita soporte")
+    Person(agente, "Agente de soporte", "Atiende tickets y da seguimiento")
+    System(crm, "CRM Soporte", "Gestión de tickets y validación de clientes")
+
+    Rel(cliente, crm, "Crea y consulta tickets de soporte")
+    Rel(agente, crm, "Gestiona tickets, asigna responsables y actualiza estados")
+
+// Diagrama de Contenedores
+
+C4Container
+    title CRM - Módulo de Soporte al Cliente
+    Person(cliente, "Cliente")
+    Person(agente, "Agente de soporte")
+
+    System_Boundary(s1, "CRM Soporte") {
+        Container(web, "Portal Web", "React/Angular", "Interfaz para clientes y agentes")
+        Container(api, "API de Soporte", "Node.js/Java", "Expone endpoints para tickets y validación")
+        Container(db, "Base de Datos", "PostgreSQL", "Almacena clientes, tickets y estados")
+        Container(service, "Servicio de Validación", "Simulado/REST", "Verifica existencia de clientes")
+    }
+
+    Rel(cliente, web, "Accede para crear tickets")
+    Rel(agente, web, "Accede para gestionar tickets")
+    Rel(web, api, "Consume endpoints REST")
+    Rel(api, db, "Lee/Escribe tickets y clientes")
+    Rel(api, service, "Consulta validación de clientes")
+
+// Diagrama de Componentes
+C4Component
+    title API de Soporte - Componentes
+    Container(api, "API de Soporte", "Node.js/Java", "Gestión de tickets")
+
+    Component(controller, "TicketController", "Expone endpoints REST para tickets")
+    Component(service, "TicketService", "Lógica de negocio: creación, asignación, actualización")
+    Component(repo, "TicketRepository", "Acceso a base de datos de tickets")
+    Component(validation, "ValidationAdapter", "Conexión con servicio externo de clientes")
+
+    Rel(controller, service, "Invoca lógica de negocio")
+    Rel(service, repo, "Accede a datos de tickets")
+    Rel(service, validation, "Valida clientes antes de crear tickets")
+
+// Diagrama de Código
+C4Code
+    title TicketService - Clases principales
+    Component(TicketService, "TicketService", "Clase principal de negocio")
+    Component(Ticket, "Ticket", "Entidad con ID, estado, descripción, cliente")
+    Component(ClientValidator, "ClientValidator", "Valida existencia de cliente")
+    Component(NotificationManager, "NotificationManager", "Envía alertas internas")
+
+    Rel(TicketService, Ticket, "Crea y actualiza tickets")
+    Rel(TicketService, ClientValidator, "Valida cliente antes de registrar ticket")
+    Rel(TicketService, NotificationManager, "Notifica agentes en tickets críticos")
+
+
