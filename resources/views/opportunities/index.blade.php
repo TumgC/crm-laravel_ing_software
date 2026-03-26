@@ -35,20 +35,36 @@
         </button>
     </form>
 
-    <div class="flex flex-wrap gap-2 mt-4 text-sm">
-        @php
-            $stages = $stages ?? ['Todos','Prospecto','Negociación','Cerrado Ganado','Cerrado Perdido'];
-            $current = request('stage', 'Todos');
-        @endphp
+    <div class="flex gap-2 mt-4 text-sm flex-wrap">
+            @php
+                $current = request('stage', 'Todos');
+                $q = request('q');
+            @endphp
 
-        @foreach($stages as $st)
-            <a href="{{ route('opportunities.index', array_filter(['stage'=>$st, 'q'=>request('q')])) }}"
-               class="px-3 py-1 rounded-lg
-               {{ $current === $st ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">
-                {{ $st }}
-            </a>
-        @endforeach
+            @foreach($stages as $st)
+                @php
+                    $params = ['q' => $q];
+
+                    if ($st !== 'Todos') {
+                        $params['stage'] = $st;
+                    }
+
+                    $params = array_filter($params, fn($v) => $v !== null && $v !== '');
+
+                    $count = $st === 'Todos'
+                        ? ($totalOpportunities ?? 0)
+                        : ($stageCounts[$st] ?? 0);
+                @endphp
+
+                <a href="{{ route('opportunities.index', $params) }}"
+                class="px-3 py-1 rounded-lg
+                {{ $current === $st ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">
+                    {{ $st }} ({{ $count }})
+                </a>
+            @endforeach
     </div>
+
+
 </div>
 
 {{-- Lista (cards) --}}
@@ -76,8 +92,12 @@
                 </div>
 
                 <h3 class="font-semibold text-lg mb-1">
-                    Cliente ID: {{ $op->customer_id }}
+                  {{ $op->customer_name ?? 'Cliente sin nombre' }}
                 </h3>
+
+                <p class="text-sm text-slate-500 mb-3">
+                    ID Cliente: {{ $op->customer_id }}
+                </p>
 
                 <p class="text-sm text-slate-500 mb-3">
                     {{ Str::limit($op->description ?? '', 120) }}
@@ -85,7 +105,7 @@
 
                 <div class="flex flex-wrap items-center gap-6 text-xs text-slate-400">
                     <span>Monto: Q {{ number_format($op->amount, 2) }}</span>
-                    <span>Cierre estimado: {{ optional($op->close_date)->format('Y-m-d') ?? '—' }}</span>
+                    <span>Cierre estimado:{{ $op->estimated_close_date ? \Carbon\Carbon::parse($op->estimated_close_date)->format('Y-m-d') : '—' }}</span>
                     <span>Creado: {{ $op->created_at->format('Y-m-d') }}</span>
                 </div>
             </div>

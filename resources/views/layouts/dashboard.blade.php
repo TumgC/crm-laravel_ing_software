@@ -63,6 +63,8 @@
             </nav>
 
             {{-- Usuario abajo --}}
+            {{-- Cerrar sesion --}}
+              
             <div class="mt-auto border-t p-4 flex items-center gap-3">
                 <div class="w-10 h-10 rounded-full bg-indigo-600 text-white flex items-center justify-center text-sm font-semibold">
                     {{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 2)) }}
@@ -70,8 +72,14 @@
                 <div class="min-w-0">
                     <div class="text-sm font-semibold truncate">{{ auth()->user()->name ?? 'Usuario' }}</div>
                     <div class="text-xs text-slate-500 truncate">{{ auth()->user()->email ?? '' }}</div>
+            <form method="POST" action="{{ route('logout') }}">
+                 @csrf
+                <button type="submit" class="px-3 py-2 bg-red-500 text-white rounded">
+                Cerrar sesión
+                </button>
+            </form>
                 </div>
-            </div>
+            </div> 
         </aside>
 
         <!-- Main -->

@@ -16,4 +16,17 @@ class OpportunityStageHistory extends Model
         'changed_by',
         'changed_at',
     ];
+
+    // Aseguramos que `changed_at` se trate como una fecha
+    protected $dates = ['changed_at'];
+
+    public function opportunity()
+    {
+        return $this->belongsTo(Opportunity::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'changed_by');
+    }
 }

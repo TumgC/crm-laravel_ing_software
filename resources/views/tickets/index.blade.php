@@ -36,31 +36,35 @@
         </button>
     </form>
 
-    <div class="flex gap-2 mt-4 text-sm flex-wrap">
-        @php
-            $current = request('status', 'Todos');
-            $q = request('q');
-        @endphp
-
-        @foreach($statuses as $st)
+        <div class="flex gap-2 mt-4 text-sm flex-wrap">
             @php
-                // Si es "Todos", NO mandamos status
-                $params = ['q' => $q];
-
-                if ($st !== 'Todos') {
-                    $params['status'] = $st;
-                }
-
-                $params = array_filter($params, fn($v) => $v !== null && $v !== '');
+                $current = request('status', 'Todos');
+                $q = request('q');
             @endphp
 
-            <a href="{{ route('tickets.index', $params) }}"
-            class="px-3 py-1 rounded-lg
-            {{ $current === $st ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">
-                {{ $st }}
-            </a>
-        @endforeach
-    </div>
+            @foreach($statuses as $st)
+                @php
+                    $params = ['q' => $q];
+
+                    if ($st !== 'Todos') {
+                        $params['status'] = $st;
+                    }
+
+                    $params = array_filter($params, fn($v) => $v !== null && $v !== '');
+
+                    $count = $st === 'Todos'
+                        ? ($totalTickets ?? 0)
+                        : ($statusCounts[$st] ?? 0);
+                @endphp
+
+                <a href="{{ route('tickets.index', $params) }}"
+                class="px-3 py-1 rounded-lg
+                {{ $current === $st ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">
+                    {{ $st }} ({{ $count }})
+                </a>
+            @endforeach
+        </div>
+  
 </div>
 
 {{-- Lista de tickets --}}

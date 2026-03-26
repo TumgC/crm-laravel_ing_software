@@ -29,9 +29,7 @@ Route::get('/tickets/create', [TicketController::class, 'create'])
 
 Route::get('/tickets/search-customers', [TicketController::class, 'searchCustomers'])
     ->name('tickets.search-customers');
- 
-    
-    
+
 Route::post('/tickets', [TicketController::class, 'store'])
     ->middleware(['auth'])
     ->name('tickets.store');
@@ -54,6 +52,14 @@ Route::get('/tickets/{ticket}', [TicketController::class, 'show'])
 Route::patch('/tickets/{ticket}', [TicketController::class, 'update'])
     ->middleware(['auth'])
     ->name('tickets.update');
+
+Route::post('tickets/{ticket}/addInteraction', [TicketController::class, 'addInteraction'])->name('tickets.addInteraction');
+
+Route::get('tickets/{ticket}', [TicketController::class, 'show'])->name('tickets.show');
+
+Route::get('/customers/create', function () {
+    return redirect()->back()->with('success', 'Pendiente crear formulario de cliente.');
+    })->name('customers.create');
 
 Route::get('/opportunities', [OpportunityController::class, 'index'])
     ->middleware(['auth'])
@@ -78,3 +84,21 @@ Route::get('/opportunities/{opportunity}/stage', [OpportunityController::class, 
 Route::post('/opportunities/{opportunity}/stage', [OpportunityController::class, 'stageUpdate'])
     ->middleware(['auth'])
     ->name('opportunities.stageUpdate');
+
+Route::get('/opportunities/{opportunity}/history', [OpportunityController::class, 'history'])
+    ->name('opportunities.history');
+    
+Route::get('opportunities/{opportunity}/change-stage', [OpportunityController::class, 'changeStage'])->name('opportunities.changeStage');
+    
+Route::get('opportunities/{id}', [OpportunityController::class, 'show'])->name('opportunities.show');
+
+Route::get('/opportunities/{opportunity}/change-stage', [OpportunityController::class, 'stageForm'])->name('opportunities.stageForm');
+
+Route::put('/opportunities/{opportunity}/update-stage', [OpportunityController::class, 'stageUpdate'])->name('opportunities.stageUpdate');
+
+Route::get('/opportunities/{opportunity}/history', [OpportunityController::class, 'history'])->name('opportunities.history');
+
+Route::get('/opportunities/{opportunity}', [OpportunityController::class, 'show'])->name('opportunities.show');
+
+Route::put('opportunities/{opportunity}/change-stage', [OpportunityController::class, 'changeStage'])->name('opportunities.changeStage');
+

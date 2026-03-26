@@ -20,15 +20,21 @@ class Ticket extends Model
         'assigned_to',
     ];
 
-    // (Opcional recomendado) relación: ticket asignado a un usuario (agente)
+    // Relación con el agente asignado al ticket (relación de tipo 'belongsTo')
     public function assignee()
     {
         return $this->belongsTo(User::class, 'assigned_to');
     }
 
-    // (Opcional recomendado) historial de asignaciones (para tu Historia 2 Soporte)
+    // Relación con el historial de asignaciones (para tu Historia 2 Soporte)
     public function assignments()
     {
         return $this->hasMany(TicketAssignment::class);
+    }
+
+    // Relación con las interacciones del ticket (comentarios/interacciones)
+    public function interactions()
+    {
+        return $this->hasMany(Interaction::class);  // Asegúrate de tener la clase Interaction
     }
 }

@@ -78,10 +78,10 @@
                        placeholder="Ej: No puedo iniciar sesión" required>
             </div>
 
-            {{-- LogErr --}}
+            {{-- Problema frecuente --}}
             <div class="mb-4">
                 <label for="common_issue" class="block font-medium text-sm text-gray-700">Problema frecuente</label>
-                <select id="common_issue" class="w-full border rounded-lg px-3 py-2">
+                <select id="common_issue" name="frequent_problem" class="w-full border rounded-lg px-3 py-2">
                     <option value="">Selecciona una opción</option>
                     <option value="No puedo iniciar sesión">No puedo iniciar sesión</option>
                     <option value="Olvidé mi contraseña">Olvidé mi contraseña</option>
@@ -92,14 +92,16 @@
                 </select>
             </div>
 
-            {{-- Description --}}
+           {{-- Descripción --}}
             <div>
                 <label class="block text-sm font-medium text-slate-700 mb-1">Descripción</label>
                 <textarea name="description" rows="5"
-                          id="description"
-                          class="w-full rounded-lg border px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500"
-                          placeholder="Describe el problema..." required>{{ old('description') }}</textarea>
+                        id="description"
+                        class="w-full rounded-lg border px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500"
+                        placeholder="Describe el problema..." required>{{ old('description') }}</textarea>
             </div>
+
+
 
             {{-- Status + Assigned --}}
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -117,7 +119,7 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">Assigned To</label>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Asignado a: </label>
 
                     <select name="assigned_to"
                             class="w-full rounded-lg border px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500">
@@ -154,7 +156,7 @@
 @endsection
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function () {
     const searchInput = document.getElementById('customer_search');
     const resultsBox = document.getElementById('customer_results');
     const customerIdInput = document.getElementById('customer_id');
@@ -163,6 +165,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const subjectInput = document.getElementById('subject');
     const descriptionInput = document.getElementById('description');
 
+    // Evento de búsqueda de clientes
     if (searchInput) {
         searchInput.addEventListener('input', async function () {
             const term = this.value.trim();
@@ -215,18 +218,18 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // Evento para actualizar la descripción cuando se selecciona un "Problema frecuente"
     if (commonIssueSelect) {
         commonIssueSelect.addEventListener('change', function () {
-            const value = this.value;
+            const value = this.value; // Obtener el valor seleccionado
 
-            if (!value) return;
-
-            if (subjectInput && subjectInput.value.trim() === '') {
-                subjectInput.value = value;
-            }
-
-            if (descriptionInput && descriptionInput.value.trim() === '') {
-                descriptionInput.value = `El cliente reporta el siguiente problema: ${value}.`;
+            if (descriptionInput) {
+                // Actualiza la descripción automáticamente
+                if (value) {
+                    descriptionInput.value = `El cliente reporta el siguiente problema: ${value}.`;
+                } else {
+                    descriptionInput.value = ''; // Si no hay selección, limpiar la descripción
+                }
             }
         });
     }

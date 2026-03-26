@@ -27,7 +27,8 @@
     <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm border">
         <h2 class="font-semibold mb-3">Descripción</h2>
         <p class="text-slate-600 text-sm whitespace-pre-line">{{ $ticket->description }}</p>
-
+    
+        {{-- Panel de actualización --}}
         <div class="mt-6 grid grid-cols-2 gap-4 text-sm">
             <div>
                 <span class="text-slate-400">Cliente (Customer ID)</span>
@@ -38,6 +39,21 @@
                 <div class="font-semibold">{{ $ticket->created_at->format('Y-m-d H:i') }}</div>
             </div>
         </div>
+    </div>
+
+    {{-- Interacción obligatoria --}}
+    <div class="bg-white p-6 rounded-xl shadow-sm border mt-6">
+        <h3 class="font-semibold mb-4">Agregar Interacción/Comentario</h3>
+        <form method="POST" action="{{ route('tickets.addInteraction', $ticket) }}">
+            @csrf
+            <div class="mb-4">
+                <label for="comment" class="block text-sm font-medium text-slate-700">Comentario</label>
+                <textarea id="comment" name="comment" rows="4" class="mt-1 w-full rounded-lg border-slate-300" required></textarea>
+            </div>
+            <button type="submit" class="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm">
+                Guardar Interacción
+            </button>
+        </form>
     </div>
 
     {{-- Panel de actualización --}}
@@ -77,6 +93,22 @@
         </form>
     </div>
 
+</div>
+
+{{-- Historial de Interacciones --}}
+<div class="bg-white p-6 rounded-xl shadow-sm border mt-6">
+    <h3 class="font-semibold mb-4">Historial de Interacciones</h3>
+    <ul class="space-y-4">
+        @foreach($ticket->interactions as $interaction)
+            <li class="p-4 border border-gray-300 rounded">
+                <p class="text-sm"><strong>Comentario:</strong> {{ $interaction->comment }}</p>
+                <small class="text-slate-500">{{ $interaction->created_at->format('d/m/Y h:i A') }}</small>
+            </li>
+        @endforeach
+    </ul>
+    @if($ticket->interactions->isEmpty())
+        <p>No hay interacciones en este ticket.</p>
+    @endif
 </div>
 
 @endsection

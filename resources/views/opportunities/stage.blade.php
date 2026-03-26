@@ -26,12 +26,12 @@
                     <div><b>Etapa actual:</b> {{ $opportunity->stage }}</div>
                 </div>
 
-                <form method="POST" action="{{ route('opportunities.stageUpdate', $opportunity) }}" class="space-y-4">
+               <form id="stageForm" method="POST" action="{{ route('opportunities.stageUpdate', $opportunity) }}" class="space-y-4">
                     @csrf
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Nueva etapa</label>
-                        <select name="stage" class="mt-1 w-full rounded-lg border-gray-300" required>
+                        <select id="stage" name="stage" class="mt-1 w-full rounded-lg border-gray-300" required>
                             @foreach($stages as $s)
                                 <option value="{{ $s }}" @selected($s === $opportunity->stage)>{{ $s }}</option>
                             @endforeach
@@ -47,4 +47,26 @@
             </div>
         </div>
     </div>
+    
+    <script>
+             document.addEventListener('DOMContentLoaded', function () {
+             const form = document.getElementById('stageForm');
+             const stageSelect = document.getElementById('stage');
+
+           if (form && stageSelect) 
+        {
+              form.addEventListener('submit', function (e) {
+                  const selectedStage = stageSelect.value;
+
+                if (selectedStage === 'Cerrado Ganado' || selectedStage === 'Cerrado Perdido') {
+                    const mensaje = '¿Está seguro de cambiar la etapa a "' + selectedStage + '"?';
+
+                    if (!confirm(mensaje)) {
+                        e.preventDefault();
+                    }
+                }
+            });
+        }
+    });
+    </script>
 </x-app-layout>
