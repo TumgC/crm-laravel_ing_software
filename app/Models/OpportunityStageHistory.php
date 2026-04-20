@@ -17,8 +17,9 @@ class OpportunityStageHistory extends Model
         'changed_at',
     ];
 
-    // Aseguramos que `changed_at` se trate como una fecha
-    protected $dates = ['changed_at'];
+    protected $casts = [
+        'changed_at' => 'datetime',
+    ];
 
     public function opportunity()
     {

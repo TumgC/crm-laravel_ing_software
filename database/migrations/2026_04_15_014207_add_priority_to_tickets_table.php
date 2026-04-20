@@ -8,15 +8,15 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('opportunities', function (Blueprint $table) {
-            $table->string('customer_name')->nullable()->after('customer_id');
+        Schema::table('tickets', function (Blueprint $table) {
+            $table->string('priority')->default('Media')->after('description');
         });
     }
 
     public function down(): void
     {
-        Schema::table('opportunities', function (Blueprint $table) {
-            $table->dropColumn('customer_name');
+        Schema::table('tickets', function (Blueprint $table) {
+            $table->dropColumn('priority');
         });
     }
 };

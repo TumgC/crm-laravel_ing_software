@@ -10,31 +10,72 @@ class Ticket extends Model
 {
     use HasFactory;
 
-    // Campos permitidos para creación masiva (Ticket::create)
-    protected $fillable = [
-        'ticket_number',
-        'customer_id',
-        'subject',
-        'description',
-        'status',
-        'assigned_to',
-    ];
+protected $fillable = [
+    'ticket_number',
+    'customer_id',
+    'customer_name',
+    'subject',
+    'description',
+    'priority',
+    'status',
+    'assigned_to',
+];
 
-    // Relación con el agente asignado al ticket (relación de tipo 'belongsTo')
     public function assignee()
     {
         return $this->belongsTo(User::class, 'assigned_to');
     }
 
-    // Relación con el historial de asignaciones (para tu Historia 2 Soporte)
     public function assignments()
     {
         return $this->hasMany(TicketAssignment::class);
     }
 
-    // Relación con las interacciones del ticket (comentarios/interacciones)
     public function interactions()
     {
-        return $this->hasMany(Interaction::class);  // Asegúrate de tener la clase Interaction
+        return $this->hasMany(Interaction::class);
+    }
+
+    public function scopeByPriority($query, ?string $priority)
+    {
+        if ($priority && $priority !== 'Todas') {
+            $query->where('priority', $priority);
+        }
+
+        return $query;
+    }
+
+    public function scopeByStatus($query, ?string $status)
+    {
+        if ($status && $status !== 'Todos') {
+            $query->where('status', $status);
+        }
+
+        return $query;
+    }
+
+    public function scopeByAssignee($query, ?string $assignedTo)
+    {
+        if ($assignedTo === 'unassigned') {
+            $query->whereNull('assigned_to');
+        } elseif ($assignedTo) {
+            $query->where('assigned_to', $assignedTo);
+        }
+
+        return $query;
+    }
+
+    public function scopeSearch($query, ?string $term)
+    {
+        if ($term) {
+            $query->where(function ($sub) use ($term) {
+                $sub->where('ticket_number', 'like', "%{$term}%")
+                    ->orWhere('subject', 'like', "%{$term}%")
+                    ->orWhere('description', 'like', "%{$term}%")
+                    ->orWhere('customer_id', 'like', "%{$term}%");
+            });
+        }
+
+        return $query;
     }
 }

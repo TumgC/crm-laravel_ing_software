@@ -4,8 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\OpportunityStageHistory;
-use App\Services\CustomerService;
+use App\Models\OpportunityProposal;
 
 class Opportunity extends Model
 {
@@ -21,14 +20,37 @@ class Opportunity extends Model
         'created_by',
     ];
 
-    // Relación con los Historiales de Etapa
     public function stageHistories()
     {
-        return $this->hasMany(OpportunityStageHistory::class)->orderBy('changed_at', 'desc');
+        return $this->hasMany(OpportunityStageHistory::class)
+            ->orderBy('changed_at', 'desc');
     }
 
-    public function assignedTo()
+    public function proposals()
     {
-        return $this->belongsTo(User::class, 'assigned_to');
+        return $this->hasMany(OpportunityProposal::class);
+    }
+
+    public function scopeByStage($query, ?string $stage)
+    {
+        if ($stage && $stage !== 'Todos') {
+            $query->where('stage', $stage);
+        }
+
+        return $query;
+    }
+
+    public function scopeSearch($query, ?string $term)
+    {
+        if ($term) {
+            $query->where(function ($sub) use ($term) {
+                $sub->where('description', 'like', "%{$term}%")
+                    ->orWhere('customer_id', 'like', "%{$term}%")
+                    ->orWhere('customer_name', 'like', "%{$term}%")
+                    ->orWhere('amount', 'like', "%{$term}%");
+            });
+        }
+
+        return $query;
     }
 }
