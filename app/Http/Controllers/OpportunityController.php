@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreOpportunityRequest;
 use App\Http\Requests\UpdateOpportunityStageRequest;
 use App\Models\Opportunity;
+use App\Models\SupportCheckLog;
 use App\Services\CustomerService;
 use App\Services\OpportunityService;
+use App\Services\SupportStatusService;
 use Illuminate\Http\Request;
 use InvalidArgumentException;
 
@@ -14,11 +16,16 @@ class OpportunityController extends Controller
 {
     protected OpportunityService $opportunityService;
     protected CustomerService $customerService;
+    protected SupportStatusService $supportStatusService;
 
-    public function __construct(OpportunityService $opportunityService, CustomerService $customerService)
-    {
+    public function __construct(
+        OpportunityService $opportunityService,
+        CustomerService $customerService,
+        SupportStatusService $supportStatusService
+    ) {
         $this->opportunityService = $opportunityService;
         $this->customerService = $customerService;
+        $this->supportStatusService = $supportStatusService;
     }
 
     public function index(Request $request)
@@ -41,29 +48,29 @@ class OpportunityController extends Controller
         ));
     }
 
-public function show(Opportunity $opportunity)
-{
-    $opportunity->load([
-        'stageHistories.user',
-        'proposals.histories'
-    ]);
+    public function show(Opportunity $opportunity)
+    {
+        $opportunity->load([
+            'stageHistories.user',
+            'proposals.histories',
+        ]);
 
-    $customer = null;
-    $customers = $this->customerService->searchCustomers((string) $opportunity->customer_id);
+        $customer = null;
+        $customers = $this->customerService->searchCustomers((string) $opportunity->customer_id);
 
-    if (is_array($customers)) {
-        foreach ($customers as $item) {
-            $id = $item['id'] ?? $item['customer_id'] ?? null;
+        if (is_array($customers)) {
+            foreach ($customers as $item) {
+                $id = $item['id'] ?? $item['customer_id'] ?? null;
 
-            if ((int) $id === (int) $opportunity->customer_id) {
-                $customer = $item;
-                break;
+                if ((int) $id === (int) $opportunity->customer_id) {
+                    $customer = $item;
+                    break;
+                }
             }
         }
-    }
 
-    return view('opportunities.show', compact('opportunity', 'customer'));
-}
+        return view('opportunities.show', compact('opportunity', 'customer'));
+    }
 
     public function create()
     {
@@ -121,5 +128,62 @@ public function show(Opportunity $opportunity)
         $opportunity->load(['stageHistories.user']);
 
         return view('opportunities.history', compact('opportunity'));
+    }
+
+    public function checkSupportStatus(Opportunity $opportunity)
+    {
+        try {
+            $result = $this->supportStatusService->checkCustomerStatus((int) $opportunity->customer_id);
+
+            SupportCheckLog::create([
+                'customer_id' => $opportunity->customer_id,
+                'opportunity_id' => $opportunity->id,
+                'checked_by' => auth()->id(),
+                'checked_at' => now(),
+                'has_critical_ticket' => $result['has_critical_ticket'],
+                'summary' => $result['has_critical_ticket']
+                    ? json_encode($result['summary'], JSON_UNESCAPED_UNICODE)
+                    : null,
+                'status' => 'success',
+                'error_message' => null,
+            ]);
+
+            if ($result['has_critical_ticket']) {
+                return redirect()
+                    ->route('opportunities.show', $opportunity)
+                    ->with('support_alert', [
+                        'type' => 'critical',
+                        'message' => 'El cliente tiene un ticket crítico abierto.',
+                        'summary' => $result['summary'],
+                    ]);
+            }
+
+            return redirect()
+                ->route('opportunities.show', $opportunity)
+                ->with('support_alert', [
+                    'type' => 'ok',
+                    'message' => 'El cliente no tiene tickets críticos abiertos.',
+                    'summary' => null,
+                ]);
+        } catch (\Throwable $e) {
+            SupportCheckLog::create([
+                'customer_id' => $opportunity->customer_id,
+                'opportunity_id' => $opportunity->id,
+                'checked_by' => auth()->id(),
+                'checked_at' => now(),
+                'has_critical_ticket' => null,
+                'summary' => null,
+                'status' => 'failed',
+                'error_message' => $e->getMessage(),
+            ]);
+
+            return redirect()
+                ->route('opportunities.show', $opportunity)
+                ->with('support_alert', [
+                    'type' => 'error',
+                    'message' => 'No fue posible consultar el estado en Soporte. Intenta nuevamente.',
+                    'summary' => null,
+                ]);
+        }
     }
 }

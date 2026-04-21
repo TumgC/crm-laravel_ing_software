@@ -24,6 +24,29 @@
                 </div>
             <?php endif; ?>
 
+            <?php if(session('support_alert')): ?>
+                <?php $alert = session('support_alert'); ?>
+
+                <div class="px-4 py-3 rounded border
+                    <?php if($alert['type'] === 'critical'): ?> bg-red-100 border-red-400 text-red-700
+                    <?php elseif($alert['type'] === 'error'): ?> bg-yellow-100 border-yellow-400 text-yellow-700
+                    <?php else: ?> bg-blue-100 border-blue-400 text-blue-700
+                    <?php endif; ?>">
+                    <p class="font-semibold"><?php echo e($alert['message']); ?></p>
+
+                    <?php if(!empty($alert['summary'])): ?>
+                        <p class="text-sm mt-1">
+                            Categoría: <?php echo e($alert['summary']['category'] ?? 'No disponible'); ?>
+
+                        </p>
+                        <p class="text-sm">
+                            Fecha del ticket más reciente: <?php echo e($alert['summary']['date'] ?? 'No disponible'); ?>
+
+                        </p>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
+
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                 <h3 class="text-lg font-bold mb-4">Información de la oportunidad</h3>
 
@@ -71,6 +94,14 @@
 
                     </p>
                 </div>
+
+                <form method="POST" action="<?php echo e(route('opportunities.checkSupport', $opportunity)); ?>" class="mt-4">
+                    <?php echo csrf_field(); ?>
+                    <button type="submit"
+                            class="inline-block bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600">
+                        Consultar estado en Soporte
+                    </button>
+                </form>
             </div>
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">

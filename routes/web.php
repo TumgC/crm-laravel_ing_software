@@ -44,6 +44,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/opportunities/{opportunity}', [OpportunityController::class, 'show'])->name('opportunities.show');
     Route::post('/opportunities/{opportunity}/proposals', [OpportunityProposalController::class, 'store'])->name('proposals.store');
     Route::post('/proposals/{proposal}/status', [OpportunityProposalController::class, 'updateStatus'])->name('proposals.status');
-});
+    Route::post('/opportunities/{opportunity}/check-support', [OpportunityController::class, 'checkSupportStatus'])->name('opportunities.checkSupport');
+    });
 
 require __DIR__ . '/auth.php';
