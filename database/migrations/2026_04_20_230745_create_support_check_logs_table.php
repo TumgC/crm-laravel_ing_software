@@ -16,7 +16,7 @@ return new class extends Migration
             $table->timestamp('checked_at');
             $table->boolean('has_critical_ticket')->nullable();
             $table->text('summary')->nullable();
-            $table->string('status'); // success / failed
+            $table->string('status');
             $table->text('error_message')->nullable();
             $table->timestamps();
         });
