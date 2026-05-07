@@ -9,6 +9,32 @@
     </div>
 <?php endif; ?>
 
+<?php if(session('commercial_alert')): ?>
+    <?php $alert = session('commercial_alert'); ?>
+
+    <div class="mb-4 rounded-lg border p-3
+        <?php if($alert['type'] === 'ok'): ?> bg-blue-50 border-blue-200 text-blue-800
+        <?php elseif($alert['type'] === 'empty'): ?> bg-slate-50 border-slate-200 text-slate-700
+        <?php else: ?> bg-yellow-50 border-yellow-200 text-yellow-800
+        <?php endif; ?>">
+
+        <p class="font-semibold"><?php echo e($alert['message']); ?></p>
+
+        <?php if(!empty($alert['stage'])): ?>
+            <p class="text-sm mt-1">
+                Etapa comercial actual: <strong><?php echo e($alert['stage']); ?></strong>
+            </p>
+        <?php endif; ?>
+
+        <?php if(!empty($alert['reference'])): ?>
+            <p class="text-sm">
+                Referencia: <?php echo e($alert['reference']); ?>
+
+            </p>
+        <?php endif; ?>
+    </div>
+<?php endif; ?>
+
 <div class="flex items-center justify-between mb-6">
     <div>
         <h1 class="text-2xl font-bold"><?php echo e($ticket->ticket_number); ?></h1>
@@ -25,32 +51,55 @@
     
     <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm border">
         <h2 class="font-semibold mb-3">Descripción</h2>
-        <p class="text-slate-600 text-sm whitespace-pre-line"><?php echo e($ticket->description); ?></p>
-    
-        
-        <div class="mt-6 grid grid-cols-2 gap-4 text-sm">
+
+        <p class="text-slate-600 text-sm whitespace-pre-line">
+            <?php echo e($ticket->description); ?>
+
+        </p>
+
+        <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
             <div>
-                <span class="text-slate-400">Cliente (Customer ID)</span>
-                <div class="font-semibold"><?php echo e($ticket->customer_id); ?></div>
+                <span class="text-slate-400">Cliente</span>
+                <div class="font-semibold">
+                    <?php echo e($ticket->customer_name ?? 'Cliente ID: ' . $ticket->customer_id); ?>
+
+                </div>
+                <div class="text-xs text-slate-400">
+                    Customer ID: <?php echo e($ticket->customer_id); ?>
+
+                </div>
             </div>
+
             <div>
                 <span class="text-slate-400">Creado</span>
-                <div class="font-semibold"><?php echo e($ticket->created_at->format('Y-m-d H:i')); ?></div>
+                <div class="font-semibold">
+                    <?php echo e($ticket->created_at->format('Y-m-d H:i')); ?>
+
+                </div>
+            </div>
+
+            <div>
+                <span class="text-slate-400">Prioridad</span>
+                <div class="font-semibold">
+                    <?php echo e($ticket->priority ?? 'No definida'); ?>
+
+                </div>
+            </div>
+
+            <div>
+                <span class="text-slate-400">Estado actual</span>
+                <div class="font-semibold">
+                    <?php echo e($ticket->status); ?>
+
+                </div>
             </div>
         </div>
-    </div>
 
-    
-    <div class="bg-white p-6 rounded-xl shadow-sm border mt-6">
-        <h3 class="font-semibold mb-4">Agregar Interacción/Comentario</h3>
-        <form method="POST" action="<?php echo e(route('tickets.addInteraction', $ticket)); ?>">
+        <form method="POST" action="<?php echo e(route('tickets.checkCommercialStatus', $ticket)); ?>" class="mt-6">
             <?php echo csrf_field(); ?>
-            <div class="mb-4">
-                <label for="comment" class="block text-sm font-medium text-slate-700">Comentario</label>
-                <textarea id="comment" name="comment" rows="4" class="mt-1 w-full rounded-lg border-slate-300" required></textarea>
-            </div>
-            <button type="submit" class="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm">
-                Guardar Interacción
+            <button type="submit"
+                    class="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 text-sm">
+                Consultar estado comercial
             </button>
         </form>
     </div>
@@ -98,20 +147,50 @@
 
 
 <div class="bg-white p-6 rounded-xl shadow-sm border mt-6">
+    <h3 class="font-semibold mb-4">Agregar Interacción/Comentario</h3>
+
+    <form method="POST" action="<?php echo e(route('tickets.addInteraction', $ticket)); ?>">
+        <?php echo csrf_field(); ?>
+
+        <div class="mb-4">
+            <label for="comment" class="block text-sm font-medium text-slate-700">Comentario</label>
+            <textarea id="comment"
+                      name="comment"
+                      rows="4"
+                      class="mt-1 w-full rounded-lg border-slate-300"
+                      required></textarea>
+        </div>
+
+        <button type="submit"
+                class="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm">
+            Guardar Interacción
+        </button>
+    </form>
+</div>
+
+
+<div class="bg-white p-6 rounded-xl shadow-sm border mt-6">
     <h3 class="font-semibold mb-4">Historial de Interacciones</h3>
+
     <ul class="space-y-4">
         <?php $__currentLoopData = $ticket->interactions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $interaction): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
             <li class="p-4 border border-gray-300 rounded">
-                <p class="text-sm"><strong>Comentario:</strong> <?php echo e($interaction->comment); ?></p>
-                <small class="text-slate-500"><?php echo e($interaction->created_at->format('d/m/Y h:i A')); ?></small>
+                <p class="text-sm">
+                    <strong>Comentario:</strong> <?php echo e($interaction->comment); ?>
+
+                </p>
+                <small class="text-slate-500">
+                    <?php echo e($interaction->created_at->format('d/m/Y h:i A')); ?>
+
+                </small>
             </li>
         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
     </ul>
+
     <?php if($ticket->interactions->isEmpty()): ?>
         <p>No hay interacciones en este ticket.</p>
     <?php endif; ?>
 </div>
 
 <?php $__env->stopSection(); ?>
-
 <?php echo $__env->make('layouts.dashboard', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\Users\PC\Documents\crm-laravel_ing_software\resources\views/tickets/show.blade.php ENDPATH**/ ?>

@@ -27,15 +27,15 @@ class OpportunityStageServiceTest extends TestCase
         $this->assertEquals('Cambio permitido', $resultado['mensaje']);
     }
 
-    public function test_permite_cambio_de_negociacion_a_cerrado_perdido(): void
-    {
-        $service = new OpportunityStageService();
+        public function test_permite_cambio_de_negociacion_a_cerrado_perdido(): void
+        {
+            $service = new OpportunityStageService();
 
-        $resultado = $service->validarCambioEtapa('Negociación', 'Cerrado Perdido');
+            $resultado = $service->validarCambioEtapa('Negociación', 'Cerrado Perdido');
 
-        $this->assertTrue($resultado['valido']);
-        $this->assertEquals('Cambio permitido', $resultado['mensaje']);
-    }
+            $this->assertTrue($resultado['valido']);
+            $this->assertEquals('Cambio permitido', $resultado['mensaje']);
+        }
 
     public function test_no_permite_cambiar_una_oportunidad_ya_cerrada(): void
     {

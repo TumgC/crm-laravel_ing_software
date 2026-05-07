@@ -19,7 +19,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
+    Route::post('/tickets/{ticket}/check-commercial-status', [TicketController::class, 'checkCommercialStatus'])->name('tickets.checkCommercialStatus');
     Route::get('/tickets/create', [TicketController::class, 'create'])->name('tickets.create');
     Route::get('/tickets/search-customers', [TicketController::class, 'searchCustomers'])->name('tickets.search-customers');
     Route::post('/tickets', [TicketController::class, 'store'])->name('tickets.store');

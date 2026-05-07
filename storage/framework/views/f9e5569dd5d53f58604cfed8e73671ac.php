@@ -21,6 +21,31 @@
 
     </div>
 <?php endif; ?>
+<?php if(session('commercial_alert')): ?>
+    <?php $alert = session('commercial_alert'); ?>
+
+    <div class="mb-4 rounded-lg border p-3
+        <?php if($alert['type'] === 'ok'): ?> bg-blue-50 border-blue-200 text-blue-800
+        <?php elseif($alert['type'] === 'empty'): ?> bg-slate-50 border-slate-200 text-slate-700
+        <?php else: ?> bg-yellow-50 border-yellow-200 text-yellow-800
+        <?php endif; ?>">
+
+        <p class="font-semibold"><?php echo e($alert['message']); ?></p>
+
+        <?php if(!empty($alert['stage'])): ?>
+            <p class="text-sm mt-1">
+                Etapa comercial actual: <strong><?php echo e($alert['stage']); ?></strong>
+            </p>
+        <?php endif; ?>
+
+        <?php if(!empty($alert['reference'])): ?>
+            <p class="text-sm">
+                Referencia: <?php echo e($alert['reference']); ?>
+
+            </p>
+        <?php endif; ?>
+    </div>
+<?php endif; ?>
 
 <?php if($errors->any()): ?>
     <div class="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-red-800">

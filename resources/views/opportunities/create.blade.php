@@ -22,6 +22,30 @@
         {{ session('success') }}
     </div>
 @endif
+@if(session('commercial_alert'))
+    @php $alert = session('commercial_alert'); @endphp
+
+    <div class="mb-4 rounded-lg border p-3
+        @if($alert['type'] === 'ok') bg-blue-50 border-blue-200 text-blue-800
+        @elseif($alert['type'] === 'empty') bg-slate-50 border-slate-200 text-slate-700
+        @else bg-yellow-50 border-yellow-200 text-yellow-800
+        @endif">
+
+        <p class="font-semibold">{{ $alert['message'] }}</p>
+
+        @if(!empty($alert['stage']))
+            <p class="text-sm mt-1">
+                Etapa comercial actual: <strong>{{ $alert['stage'] }}</strong>
+            </p>
+        @endif
+
+        @if(!empty($alert['reference']))
+            <p class="text-sm">
+                Referencia: {{ $alert['reference'] }}
+            </p>
+        @endif
+    </div>
+@endif
 
 @if ($errors->any())
     <div class="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-red-800">
