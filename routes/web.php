@@ -7,9 +7,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\OpportunityController;
 use App\Http\Controllers\OpportunityProposalController;
 
-Route::get('/', function () {
-    return view('welcome');
-})->name('home');
+Route::redirect('/', '/login');
 
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])

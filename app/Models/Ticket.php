@@ -18,8 +18,14 @@ protected $fillable = [
     'description',
     'priority',
     'status',
+    'closed_at',
     'assigned_to',
+
 ];
+
+    protected $casts = [
+        'closed_at' => 'datetime',
+    ];
 
     public function assignee()
     {
@@ -34,6 +40,11 @@ protected $fillable = [
     public function interactions()
     {
         return $this->hasMany(Interaction::class);
+    }
+
+    public function statusHistories()
+    {
+        return $this->hasMany(TicketStatusHistory::class)->orderByDesc('changed_at');
     }
 
     public function scopeByPriority($query, ?string $priority)

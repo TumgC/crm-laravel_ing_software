@@ -8,6 +8,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use InvalidArgumentException;
+use App\Models\TicketStatusHistory;
 
 class TicketService
 {
@@ -55,12 +56,28 @@ class TicketService
         ]);
     }
 
-    public function updateTicket(Ticket $ticket, array $data): bool
+    public function updateTicket(Ticket $ticket, array $data, ?int $changedBy = null): bool
     {
-        return $ticket->update([
-            'status' => $data['status'],
+        $oldStatus = $ticket->status;
+        $newStatus = $data['status'];
+
+        $updated = $ticket->update([
+            'status' => $newStatus,
             'assigned_to' => $data['assigned_to'] ?? null,
+            'closed_at' => $newStatus === 'Cerrado' ? now() : $ticket->closed_at,
         ]);
+
+        if ($updated && $oldStatus !== $newStatus) {
+            TicketStatusHistory::create([
+                'ticket_id' => $ticket->id,
+                'old_status' => $oldStatus,
+                'new_status' => $newStatus,
+                'changed_by' => $changedBy,
+                'changed_at' => now(),
+            ]);
+        }
+
+        return $updated;
     }
 
     public function assignTicket(Ticket $ticket, int $assignedTo, ?int $assignedBy): void

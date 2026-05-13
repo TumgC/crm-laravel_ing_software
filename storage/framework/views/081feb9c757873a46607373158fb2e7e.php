@@ -108,7 +108,7 @@
     <div class="bg-white p-6 rounded-xl shadow-sm border">
         <h2 class="font-semibold mb-4">Actualizar</h2>
 
-        <form method="POST" action="<?php echo e(route('tickets.update', $ticket)); ?>" class="space-y-4">
+        <form method="POST" action="<?php echo e(route('tickets.update', $ticket)); ?>" class="space-y-4" onsubmit="return confirmarCierreTicket();">
             <?php echo csrf_field(); ?>
             <?php echo method_field('PATCH'); ?>
 
@@ -192,5 +192,66 @@
     <?php endif; ?>
 </div>
 
+
+<div class="bg-white p-6 rounded-xl shadow-sm border mt-6">
+    <div class="flex items-center justify-between mb-4">
+        <h3 class="font-semibold">Historial de Cambios de Estado</h3>
+    </div>
+
+    <?php if($ticket->statusHistories->isNotEmpty()): ?>
+
+        <ul class="space-y-4">
+
+            <?php $__currentLoopData = $ticket->statusHistories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $history): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+
+                <li class="p-4 border border-gray-300 rounded">
+
+                    <p class="text-sm font-semibold">
+                        De: <?php echo e($history->old_status ?? 'Sin estado'); ?>
+
+                        → A: <?php echo e($history->new_status); ?>
+
+                    </p>
+
+                    <small class="text-slate-500 block mt-1">
+                        <?php echo e($history->changed_at?->format('d/m/Y h:i A')); ?>
+
+                    </small>
+
+                    <small class="text-slate-500">
+                        Cambiado por:
+                        <?php echo e($history->changedBy->name ?? 'Sistema'); ?>
+
+                    </small>
+
+                </li>
+
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+
+        </ul>
+
+    <?php else: ?>
+
+        <p class="text-sm text-slate-500">
+            No hay cambios de estado registrados.
+        </p>
+
+    <?php endif; ?>
+</div>
+
+<script>
+    function confirmarCierreTicket() {
+        const estadoActual = <?php echo json_encode($ticket->status, 15, 512) ?>;
+        const nuevoEstado = document.querySelector('select[name="status"]').value;
+
+        if (nuevoEstado === 'Cerrado' && estadoActual !== 'Resuelto') {
+            return confirm('Este ticket no ha pasado por el estado Resuelto. ¿Deseas cerrarlo de todos modos?');
+        }
+
+        return true;
+    }
+</script>
+
 <?php $__env->stopSection(); ?>
-<?php echo $__env->make('layouts.dashboard', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\Users\PC\Documents\crm-laravel_ing_software\resources\views/tickets/show.blade.php ENDPATH**/ ?>
+
+<?php echo $__env->make('layouts.dashboard', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\laravel\crm\resources\views/tickets/show.blade.php ENDPATH**/ ?>

@@ -102,7 +102,7 @@
     <div class="bg-white p-6 rounded-xl shadow-sm border">
         <h2 class="font-semibold mb-4">Actualizar</h2>
 
-        <form method="POST" action="{{ route('tickets.update', $ticket) }}" class="space-y-4">
+        <form method="POST" action="{{ route('tickets.update', $ticket) }}" class="space-y-4" onsubmit="return confirmarCierreTicket();">
             @csrf
             @method('PATCH')
 
@@ -181,5 +181,61 @@
         <p>No hay interacciones en este ticket.</p>
     @endif
 </div>
+
+{{-- Historial de Cambios de Estado --}}
+<div class="bg-white p-6 rounded-xl shadow-sm border mt-6">
+    <div class="flex items-center justify-between mb-4">
+        <h3 class="font-semibold">Historial de Cambios de Estado</h3>
+    </div>
+
+    @if($ticket->statusHistories->isNotEmpty())
+
+        <ul class="space-y-4">
+
+            @foreach($ticket->statusHistories as $history)
+
+                <li class="p-4 border border-gray-300 rounded">
+
+                    <p class="text-sm font-semibold">
+                        De: {{ $history->old_status ?? 'Sin estado' }}
+                        → A: {{ $history->new_status }}
+                    </p>
+
+                    <small class="text-slate-500 block mt-1">
+                        {{ $history->changed_at?->format('d/m/Y h:i A') }}
+                    </small>
+
+                    <small class="text-slate-500">
+                        Cambiado por:
+                        {{ $history->changedBy->name ?? 'Sistema' }}
+                    </small>
+
+                </li>
+
+            @endforeach
+
+        </ul>
+
+    @else
+
+        <p class="text-sm text-slate-500">
+            No hay cambios de estado registrados.
+        </p>
+
+    @endif
+</div>
+
+<script>
+    function confirmarCierreTicket() {
+        const estadoActual = @json($ticket->status);
+        const nuevoEstado = document.querySelector('select[name="status"]').value;
+
+        if (nuevoEstado === 'Cerrado' && estadoActual !== 'Resuelto') {
+            return confirm('Este ticket no ha pasado por el estado Resuelto. ¿Deseas cerrarlo de todos modos?');
+        }
+
+        return true;
+    }
+</script>
 
 @endsection

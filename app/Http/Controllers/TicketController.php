@@ -111,7 +111,7 @@ class TicketController extends Controller
 
     public function show(Ticket $ticket)
     {
-        $ticket->load(['interactions', 'assignee']);
+        $ticket->load(['interactions', 'assignee', 'statusHistories.changedBy']);
 
         $agents = User::orderBy('name')->get();
         $statuses = $this->ticketService->getStatuses();
@@ -121,11 +121,15 @@ class TicketController extends Controller
 
     public function update(UpdateTicketRequest $request, Ticket $ticket)
     {
-        $this->ticketService->updateTicket($ticket, $request->validated());
+        $this->ticketService->updateTicket(
+            $ticket,
+            $request->validated(),
+            auth()->id()
+        );
 
         return redirect()
             ->route('tickets.show', $ticket)
-            ->with('success', 'Ticket actualizado correctamente.');
+            ->with('success', 'Estado del ticket actualizado correctamente.');
     }
 
     public function searchCustomers(Request $request)

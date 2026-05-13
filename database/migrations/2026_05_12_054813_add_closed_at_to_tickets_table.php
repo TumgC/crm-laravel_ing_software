@@ -11,17 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('commercial_status_check_logs', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+        Schema::table('tickets', function (Blueprint $table) {
+            $table->timestamp('closed_at')->nullable()->after('status');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('commercial_status_check_logs');
+        Schema::table('tickets', function (Blueprint $table) {
+            $table->dropColumn('closed_at');
+        });
     }
 };
