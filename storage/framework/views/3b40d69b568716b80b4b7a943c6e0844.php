@@ -105,4 +105,4 @@
     </div>
 </body>
 </html>
-<?php /**PATH C:\xampp\htdocs\laravel\crm\resources\views/layouts/dashboard.blade.php ENDPATH**/ ?>
+<?php /**PATH C:\xampp\htdocs\crm-laravel_ing_software\resources\views/layouts/dashboard.blade.php ENDPATH**/ ?>

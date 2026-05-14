@@ -6,6 +6,7 @@ use App\Models\Opportunity;
 use App\Models\OpportunityStageHistory;
 use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use App\Models\InternalNotification;
 
 class OpportunityService
 {
@@ -95,9 +96,24 @@ class OpportunityService
             'changed_at' => Carbon::now(),
         ]);
 
-        $opportunity->update([
+        $data = [
             'stage' => $newStage,
-        ]);
+        ];
+
+        if ($newStage === 'Cerrado Ganado') {
+            $data['closed_at'] = Carbon::now();
+            $data['closed_by'] = $changedBy;
+            $data['final_amount'] = $opportunity->amount;
+
+            InternalNotification::create([
+                'user_id' => $changedBy,
+                'opportunity_id' => $opportunity->id,
+                'title' => 'Oportunidad cerrada como ganada',
+                'message' => 'La oportunidad "' . $opportunity->description . '" del cliente ' . $opportunity->customer_name . ' fue marcada como Cerrado Ganado por un monto de Q' . number_format($opportunity->amount, 2) . '.',
+            ]);
+        }
+
+        $opportunity->update($data);
     }
 
     protected function findCustomerById(int $customerId): ?array

@@ -78,6 +78,33 @@
                     </p>
                 </div>
 
+                 @if($opportunity->stage === 'Cerrado Ganado')
+                <div class="mt-4 p-4 bg-green-50 border border-green-300 rounded-lg">
+                        <h4 class="font-bold text-green-800 mb-2">
+                            Cierre registrado
+                        </h4>
+
+                        <p>
+                            <strong>Monto final:</strong>
+                            Q {{ number_format((float) ($opportunity->final_amount ?? $opportunity->amount), 2) }}
+                        </p>
+
+                        <p>
+                            <strong>Fecha y hora de cierre:</strong>
+                            {{ $opportunity->closed_at ? $opportunity->closed_at->format('d/m/Y h:i A') : 'No registrada' }}
+                        </p>
+
+                        <p>
+                            <strong>Cerrado por:</strong>
+                            {{ $opportunity->closedBy->name ?? 'Usuario no disponible' }}
+                        </p>
+
+                        <p class="mt-2 text-green-700 font-semibold">
+                            Notificación interna generada correctamente.
+                        </p>
+                </div>
+              @endif
+
                 <form method="POST" action="{{ route('opportunities.checkSupport', $opportunity) }}" class="mt-4">
                     @csrf
                     <button type="submit"

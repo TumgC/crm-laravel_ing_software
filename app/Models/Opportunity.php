@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\OpportunityProposal;
+use App\Models\InternalNotification;
+use App\Models\User;
 
 class Opportunity extends Model
 {
@@ -18,6 +20,14 @@ class Opportunity extends Model
         'description',
         'stage',
         'created_by',
+        'closed_at',
+        'closed_by',
+        'final_amount',
+    ];
+
+    protected $casts = [
+        'closed_at' => 'datetime',
+        'estimated_close_date' => 'date',
     ];
 
     public function stageHistories()
@@ -29,6 +39,16 @@ class Opportunity extends Model
     public function proposals()
     {
         return $this->hasMany(OpportunityProposal::class);
+    }
+
+    public function internalNotifications()
+    {
+        return $this->hasMany(InternalNotification::class);
+    }
+
+    public function closedBy()
+    {
+        return $this->belongsTo(User::class, 'closed_by');
     }
 
     public function scopeByStage($query, ?string $stage)
