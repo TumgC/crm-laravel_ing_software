@@ -181,6 +181,57 @@
         <p>No hay interacciones en este ticket.</p>
     @endif
 </div>
+<div class="bg-white p-6 rounded-xl shadow-sm border mt-6">
+    <h3 class="font-semibold mb-4">Encuesta de satisfacción</h3>
+
+    @if($ticket->satisfactionSurvey)
+        <div class="rounded-lg border border-green-200 bg-green-50 p-4 text-green-800">
+            <p><strong>Calificación:</strong> {{ $ticket->satisfactionSurvey->rating }}/5</p>
+
+            @if($ticket->satisfactionSurvey->comment)
+                <p class="mt-2"><strong>Comentario:</strong> {{ $ticket->satisfactionSurvey->comment }}</p>
+            @endif
+
+            <p class="text-sm mt-2">
+                Registrada el:
+                {{ $ticket->satisfactionSurvey->answered_at->format('d/m/Y h:i A') }}
+            </p>
+        </div>
+    @elseif(in_array($ticket->status, ['Resuelto', 'Cerrado']))
+        <form method="POST" action="{{ route('tickets.satisfaction.store', $ticket) }}" class="space-y-4">
+            @csrf
+
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Calificación</label>
+                <select name="rating" class="mt-1 w-full rounded-lg border-slate-300" required>
+                    <option value="">Seleccione una calificación</option>
+                    <option value="5">5 - Muy satisfecho</option>
+                    <option value="4">4 - Satisfecho</option>
+                    <option value="3">3 - Neutral</option>
+                    <option value="2">2 - Insatisfecho</option>
+                    <option value="1">1 - Muy insatisfecho</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Comentario opcional</label>
+                <textarea name="comment"
+                          rows="3"
+                          class="mt-1 w-full rounded-lg border-slate-300"
+                          placeholder="Comentario del cliente..."></textarea>
+            </div>
+
+            <button type="submit"
+                    class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm">
+                Guardar encuesta
+            </button>
+        </form>
+    @else
+        <p class="text-sm text-slate-500">
+            La encuesta estará disponible cuando el ticket esté en estado Resuelto o Cerrado.
+        </p>
+    @endif
+</div>
 
 {{-- Historial de Cambios de Estado --}}
 <div class="bg-white p-6 rounded-xl shadow-sm border mt-6">

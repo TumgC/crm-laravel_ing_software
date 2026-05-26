@@ -38,4 +38,4 @@ $classes = ($active ?? false)
     <?php echo e($slot); ?>
 
 </a>
-<?php /**PATH C:\xampp\htdocs\laravel\crm\resources\views/components/responsive-nav-link.blade.php ENDPATH**/ ?>
+<?php /**PATH C:\Users\PC\Documents\crm-laravel_ing_software\resources\views/components/responsive-nav-link.blade.php ENDPATH**/ ?>

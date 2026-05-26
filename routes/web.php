@@ -27,6 +27,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/tickets/{ticket}', [TicketController::class, 'show'])->name('tickets.show');
     Route::patch('/tickets/{ticket}', [TicketController::class, 'update'])->name('tickets.update');
     Route::post('/tickets/{ticket}/addInteraction', [TicketController::class, 'addInteraction'])->name('tickets.addInteraction');
+    Route::post('/tickets/{ticket}/satisfaction', [TicketController::class, 'storeSatisfactionSurvey'])->name('tickets.satisfaction.store');
 
     Route::get('/customers/create', function () {
         return redirect()->back()->with('success', 'Pendiente crear formulario de cliente.');

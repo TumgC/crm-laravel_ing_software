@@ -137,14 +137,18 @@ class TicketService
         return 'TCK-' . str_pad((string) $nextId, 4, '0', STR_PAD_LEFT);
     }
 
-    protected function buildDescription(array $data): string
-    {
-        if (!empty($data['frequent_problem'])) {
-            return 'El cliente reporta el siguiente problema: ' . $data['frequent_problem'];
-        }
-
-        return $data['description'];
+   protected function buildDescription(array $data): string
+{
+    if (!empty($data['custom_problem'])) {
+        return 'El cliente reporta el siguiente problema: ' . $data['custom_problem'];
     }
+
+    if (!empty($data['frequent_problem']) && $data['frequent_problem'] !== 'otro') {
+        return 'El cliente reporta el siguiente problema: ' . $data['frequent_problem'];
+    }
+
+    return $data['description'] ?? 'Sin descripción registrada.';
+}
 
     protected function resolveStatus(array $data): string
     {

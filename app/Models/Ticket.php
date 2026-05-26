@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
+use App\Models\TicketSatisfactionSurvey;
 
 class Ticket extends Model
 {
@@ -22,6 +23,11 @@ protected $fillable = [
     'assigned_to',
 
 ];
+
+    public function satisfactionSurvey()
+{
+    return $this->hasOne(TicketSatisfactionSurvey::class);
+}
 
     protected $casts = [
         'closed_at' => 'datetime',

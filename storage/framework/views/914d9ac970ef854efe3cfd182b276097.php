@@ -40,25 +40,22 @@
 
             <div class="mb-4">
                 <label for="customer_search" class="block font-medium text-sm text-gray-700">Buscar cliente</label>
-                <input
-                    type="text"
-                    id="customer_search"
-                    class="w-full border rounded-lg px-3 py-2"
-                    placeholder="Buscar por nombre, apellido o DPI"
-                    autocomplete="off"
-                >
+                <input type="text"
+                       id="customer_search"
+                       class="w-full border rounded-lg px-3 py-2"
+                       placeholder="Buscar por nombre, apellido o DPI"
+                       autocomplete="off">
+
                 <div id="customer_results" class="border rounded-lg bg-white mt-1 hidden"></div>
             </div>
 
             <div class="mb-4">
                 <label for="customer_selected" class="block font-medium text-sm text-gray-700">Cliente seleccionado</label>
-                <input
-                    type="text"
-                    id="customer_selected"
-                    class="w-full border rounded-lg px-3 py-2 bg-gray-100"
-                    placeholder="Aún no se ha seleccionado un cliente"
-                    readonly
-                >
+                <input type="text"
+                       id="customer_selected"
+                       class="w-full border rounded-lg px-3 py-2 bg-gray-100"
+                       placeholder="Aún no se ha seleccionado un cliente"
+                       readonly>
             </div>
 
             <input type="hidden" name="customer_id" id="customer_id" value="<?php echo e(old('customer_id')); ?>">
@@ -76,27 +73,39 @@
 
             <div class="mb-4">
                 <label for="common_issue" class="block font-medium text-sm text-gray-700">Problema frecuente</label>
-                <select id="common_issue" name="frequent_problem" class="w-full border rounded-lg px-3 py-2">
+                <select id="common_issue"
+                        name="frequent_problem"
+                        class="w-full border rounded-lg px-3 py-2">
                     <option value="">Selecciona una opción</option>
-                    <option value="No puedo iniciar sesión" <?php echo e(old('frequent_problem') == 'No puedo iniciar sesión' ? 'selected' : ''); ?>>
+                    <option value="No puedo iniciar sesión" <?php if(old('frequent_problem') === 'No puedo iniciar sesión'): echo 'selected'; endif; ?>>
                         No puedo iniciar sesión
                     </option>
-                    <option value="Olvidé mi contraseña" <?php echo e(old('frequent_problem') == 'Olvidé mi contraseña' ? 'selected' : ''); ?>>
+                    <option value="Olvidé mi contraseña" <?php if(old('frequent_problem') === 'Olvidé mi contraseña'): echo 'selected'; endif; ?>>
                         Olvidé mi contraseña
                     </option>
-                    <option value="Error al generar factura" <?php echo e(old('frequent_problem') == 'Error al generar factura' ? 'selected' : ''); ?>>
+                    <option value="Error al generar factura" <?php if(old('frequent_problem') === 'Error al generar factura'): echo 'selected'; endif; ?>>
                         Error al generar factura
                     </option>
-                    <option value="Problema con acceso al sistema" <?php echo e(old('frequent_problem') == 'Problema con acceso al sistema' ? 'selected' : ''); ?>>
+                    <option value="Problema con acceso al sistema" <?php if(old('frequent_problem') === 'Problema con acceso al sistema'): echo 'selected'; endif; ?>>
                         Problema con acceso al sistema
                     </option>
-                    <option value="Consulta sobre pedido" <?php echo e(old('frequent_problem') == 'Consulta sobre pedido' ? 'selected' : ''); ?>>
+                    <option value="Consulta sobre pedido" <?php if(old('frequent_problem') === 'Consulta sobre pedido'): echo 'selected'; endif; ?>>
                         Consulta sobre pedido
                     </option>
-                    <option value="Fallo en actualización de datos" <?php echo e(old('frequent_problem') == 'Fallo en actualización de datos' ? 'selected' : ''); ?>>
+                    <option value="Fallo en actualización de datos" <?php if(old('frequent_problem') === 'Fallo en actualización de datos'): echo 'selected'; endif; ?>>
                         Fallo en actualización de datos
                     </option>
+                    <option value="otro" <?php if(old('frequent_problem') === 'otro'): echo 'selected'; endif; ?>>
+                        ⊕ Agregar opción...
+                    </option>
                 </select>
+
+                <input type="text"
+                       id="custom_problem"
+                       name="custom_problem"
+                       value="<?php echo e(old('custom_problem')); ?>"
+                       placeholder="Escribe el problema personalizado"
+                       class="mt-3 w-full rounded-lg border px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500 hidden">
             </div>
 
             <div>
@@ -130,7 +139,7 @@
                             class="w-full rounded-lg border px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500"
                             required>
                         <?php $__currentLoopData = $statuses; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $st): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                            <option value="<?php echo e($st); ?>" <?php echo e(old('status', 'Abierto') == $st ? 'selected' : ''); ?>>
+                            <option value="<?php echo e($st); ?>" <?php if(old('status', 'Abierto') === $st): echo 'selected'; endif; ?>>
                                 <?php echo e($st); ?>
 
                             </option>
@@ -144,8 +153,7 @@
                             class="w-full rounded-lg border px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500">
                         <option value="">Sin asignar</option>
                         <?php $__currentLoopData = $agents; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $agent): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                            <option value="<?php echo e($agent->id); ?>"
-                                <?php echo e(old('assigned_to') == $agent->id ? 'selected' : ''); ?>>
+                            <option value="<?php echo e($agent->id); ?>" <?php if(old('assigned_to') == $agent->id): echo 'selected'; endif; ?>>
                                 <?php echo e($agent->name); ?> (<?php echo e($agent->email); ?>)
                             </option>
                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
@@ -158,13 +166,13 @@
             <div class="flex items-center gap-3 pt-2">
                 <button type="submit"
                         class="px-5 py-2 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700">
-                    Guardar Ticket
+                    Crear Ticket
                 </button>
 
-                <button type="reset"
-                        class="px-5 py-2 bg-slate-100 text-slate-800 rounded-lg text-sm hover:bg-slate-200">
-                    Limpiar
-                </button>
+                <a href="<?php echo e(route('tickets.index')); ?>"
+                   class="px-5 py-2 bg-slate-100 text-slate-800 rounded-lg text-sm hover:bg-slate-200">
+                    Cancelar
+                </a>
             </div>
 
         </form>
@@ -178,6 +186,7 @@
         const customerIdInput = document.getElementById('customer_id');
         const customerSelectedInput = document.getElementById('customer_selected');
         const commonIssueSelect = document.getElementById('common_issue');
+        const customProblemInput = document.getElementById('custom_problem');
         const descriptionInput = document.getElementById('description');
 
         if (searchInput) {
@@ -232,20 +241,48 @@
             });
         }
 
-        if (commonIssueSelect) {
-            commonIssueSelect.addEventListener('change', function () {
-                const value = this.value;
+        function updateProblemFields() {
+            const value = commonIssueSelect.value;
+
+            if (value === 'otro') {
+                customProblemInput.classList.remove('hidden');
+                customProblemInput.required = true;
+                customProblemInput.focus();
 
                 if (descriptionInput) {
-                    if (value) {
-                        descriptionInput.value = `El cliente reporta el siguiente problema: ${value}.`;
-                    } else {
-                        descriptionInput.value = '';
-                    }
+                    descriptionInput.value = customProblemInput.value
+                        ? `El cliente reporta el siguiente problema: ${customProblemInput.value}.`
+                        : '';
+                }
+            } else {
+                customProblemInput.classList.add('hidden');
+                customProblemInput.required = false;
+                customProblemInput.value = '';
+
+                if (descriptionInput) {
+                    descriptionInput.value = value
+                        ? `El cliente reporta el siguiente problema: ${value}.`
+                        : '';
+                }
+            }
+        }
+
+        if (commonIssueSelect && customProblemInput) {
+            commonIssueSelect.addEventListener('change', updateProblemFields);
+
+            customProblemInput.addEventListener('input', function () {
+                if (commonIssueSelect.value === 'otro' && descriptionInput) {
+                    descriptionInput.value = this.value
+                        ? `El cliente reporta el siguiente problema: ${this.value}.`
+                        : '';
                 }
             });
+
+            updateProblemFields();
         }
     });
 </script>
 <?php $__env->stopSection(); ?>
-<?php echo $__env->make('layouts.dashboard', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\laravel\crm\resources\views/tickets/create.blade.php ENDPATH**/ ?>
+
+
+<?php echo $__env->make('layouts.dashboard', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\Users\PC\Documents\crm-laravel_ing_software\resources\views/tickets/create.blade.php ENDPATH**/ ?>

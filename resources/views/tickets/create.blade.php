@@ -19,17 +19,17 @@
 
     <div class="bg-white rounded-2xl shadow-sm border p-6">
 
-        @if (session('success'))
+        @if(session('success'))
             <div class="mb-4 rounded-lg border border-green-200 bg-green-50 p-3 text-green-800">
                 {{ session('success') }}
             </div>
         @endif
 
-        @if ($errors->any())
+        @if($errors->any())
             <div class="mb-4 rounded-lg bg-red-50 border border-red-200 p-4">
                 <p class="font-semibold text-red-700 mb-1">Revisa lo siguiente:</p>
                 <ul class="text-sm text-red-600 list-disc pl-5">
-                    @foreach ($errors->all() as $error)
+                    @foreach($errors->all() as $error)
                         <li>{{ $error }}</li>
                     @endforeach
                 </ul>
@@ -41,25 +41,22 @@
 
             <div class="mb-4">
                 <label for="customer_search" class="block font-medium text-sm text-gray-700">Buscar cliente</label>
-                <input
-                    type="text"
-                    id="customer_search"
-                    class="w-full border rounded-lg px-3 py-2"
-                    placeholder="Buscar por nombre, apellido o DPI"
-                    autocomplete="off"
-                >
+                <input type="text"
+                       id="customer_search"
+                       class="w-full border rounded-lg px-3 py-2"
+                       placeholder="Buscar por nombre, apellido o DPI"
+                       autocomplete="off">
+
                 <div id="customer_results" class="border rounded-lg bg-white mt-1 hidden"></div>
             </div>
 
             <div class="mb-4">
                 <label for="customer_selected" class="block font-medium text-sm text-gray-700">Cliente seleccionado</label>
-                <input
-                    type="text"
-                    id="customer_selected"
-                    class="w-full border rounded-lg px-3 py-2 bg-gray-100"
-                    placeholder="Aún no se ha seleccionado un cliente"
-                    readonly
-                >
+                <input type="text"
+                       id="customer_selected"
+                       class="w-full border rounded-lg px-3 py-2 bg-gray-100"
+                       placeholder="Aún no se ha seleccionado un cliente"
+                       readonly>
             </div>
 
             <input type="hidden" name="customer_id" id="customer_id" value="{{ old('customer_id') }}">
@@ -77,27 +74,39 @@
 
             <div class="mb-4">
                 <label for="common_issue" class="block font-medium text-sm text-gray-700">Problema frecuente</label>
-                <select id="common_issue" name="frequent_problem" class="w-full border rounded-lg px-3 py-2">
+                <select id="common_issue"
+                        name="frequent_problem"
+                        class="w-full border rounded-lg px-3 py-2">
                     <option value="">Selecciona una opción</option>
-                    <option value="No puedo iniciar sesión" {{ old('frequent_problem') == 'No puedo iniciar sesión' ? 'selected' : '' }}>
+                    <option value="No puedo iniciar sesión" @selected(old('frequent_problem') === 'No puedo iniciar sesión')>
                         No puedo iniciar sesión
                     </option>
-                    <option value="Olvidé mi contraseña" {{ old('frequent_problem') == 'Olvidé mi contraseña' ? 'selected' : '' }}>
+                    <option value="Olvidé mi contraseña" @selected(old('frequent_problem') === 'Olvidé mi contraseña')>
                         Olvidé mi contraseña
                     </option>
-                    <option value="Error al generar factura" {{ old('frequent_problem') == 'Error al generar factura' ? 'selected' : '' }}>
+                    <option value="Error al generar factura" @selected(old('frequent_problem') === 'Error al generar factura')>
                         Error al generar factura
                     </option>
-                    <option value="Problema con acceso al sistema" {{ old('frequent_problem') == 'Problema con acceso al sistema' ? 'selected' : '' }}>
+                    <option value="Problema con acceso al sistema" @selected(old('frequent_problem') === 'Problema con acceso al sistema')>
                         Problema con acceso al sistema
                     </option>
-                    <option value="Consulta sobre pedido" {{ old('frequent_problem') == 'Consulta sobre pedido' ? 'selected' : '' }}>
+                    <option value="Consulta sobre pedido" @selected(old('frequent_problem') === 'Consulta sobre pedido')>
                         Consulta sobre pedido
                     </option>
-                    <option value="Fallo en actualización de datos" {{ old('frequent_problem') == 'Fallo en actualización de datos' ? 'selected' : '' }}>
+                    <option value="Fallo en actualización de datos" @selected(old('frequent_problem') === 'Fallo en actualización de datos')>
                         Fallo en actualización de datos
                     </option>
+                    <option value="otro" @selected(old('frequent_problem') === 'otro')>
+                        ⊕ Agregar opción...
+                    </option>
                 </select>
+
+                <input type="text"
+                       id="custom_problem"
+                       name="custom_problem"
+                       value="{{ old('custom_problem') }}"
+                       placeholder="Escribe el problema personalizado"
+                       class="mt-3 w-full rounded-lg border px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500 hidden">
             </div>
 
             <div>
@@ -130,7 +139,7 @@
                             class="w-full rounded-lg border px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500"
                             required>
                         @foreach($statuses as $st)
-                            <option value="{{ $st }}" {{ old('status', 'Abierto') == $st ? 'selected' : '' }}>
+                            <option value="{{ $st }}" @selected(old('status', 'Abierto') === $st)>
                                 {{ $st }}
                             </option>
                         @endforeach
@@ -143,8 +152,7 @@
                             class="w-full rounded-lg border px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500">
                         <option value="">Sin asignar</option>
                         @foreach($agents as $agent)
-                            <option value="{{ $agent->id }}"
-                                {{ old('assigned_to') == $agent->id ? 'selected' : '' }}>
+                            <option value="{{ $agent->id }}" @selected(old('assigned_to') == $agent->id)>
                                 {{ $agent->name }} ({{ $agent->email }})
                             </option>
                         @endforeach
@@ -157,13 +165,13 @@
             <div class="flex items-center gap-3 pt-2">
                 <button type="submit"
                         class="px-5 py-2 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700">
-                    Guardar Ticket
+                    Crear Ticket
                 </button>
 
-                <button type="reset"
-                        class="px-5 py-2 bg-slate-100 text-slate-800 rounded-lg text-sm hover:bg-slate-200">
-                    Limpiar
-                </button>
+                <a href="{{ route('tickets.index') }}"
+                   class="px-5 py-2 bg-slate-100 text-slate-800 rounded-lg text-sm hover:bg-slate-200">
+                    Cancelar
+                </a>
             </div>
 
         </form>
@@ -177,6 +185,7 @@
         const customerIdInput = document.getElementById('customer_id');
         const customerSelectedInput = document.getElementById('customer_selected');
         const commonIssueSelect = document.getElementById('common_issue');
+        const customProblemInput = document.getElementById('custom_problem');
         const descriptionInput = document.getElementById('description');
 
         if (searchInput) {
@@ -231,19 +240,46 @@
             });
         }
 
-        if (commonIssueSelect) {
-            commonIssueSelect.addEventListener('change', function () {
-                const value = this.value;
+        function updateProblemFields() {
+            const value = commonIssueSelect.value;
+
+            if (value === 'otro') {
+                customProblemInput.classList.remove('hidden');
+                customProblemInput.required = true;
+                customProblemInput.focus();
 
                 if (descriptionInput) {
-                    if (value) {
-                        descriptionInput.value = `El cliente reporta el siguiente problema: ${value}.`;
-                    } else {
-                        descriptionInput.value = '';
-                    }
+                    descriptionInput.value = customProblemInput.value
+                        ? `El cliente reporta el siguiente problema: ${customProblemInput.value}.`
+                        : '';
+                }
+            } else {
+                customProblemInput.classList.add('hidden');
+                customProblemInput.required = false;
+                customProblemInput.value = '';
+
+                if (descriptionInput) {
+                    descriptionInput.value = value
+                        ? `El cliente reporta el siguiente problema: ${value}.`
+                        : '';
+                }
+            }
+        }
+
+        if (commonIssueSelect && customProblemInput) {
+            commonIssueSelect.addEventListener('change', updateProblemFields);
+
+            customProblemInput.addEventListener('input', function () {
+                if (commonIssueSelect.value === 'otro' && descriptionInput) {
+                    descriptionInput.value = this.value
+                        ? `El cliente reporta el siguiente problema: ${this.value}.`
+                        : '';
                 }
             });
+
+            updateProblemFields();
         }
     });
 </script>
 @endsection
+

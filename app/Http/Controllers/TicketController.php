@@ -14,6 +14,8 @@ use App\Services\OpportunityContextService;
 use App\Services\TicketService;
 use Illuminate\Http\Request;
 use InvalidArgumentException;
+use App\Http\Requests\StoreTicketSatisfactionSurveyRequest;
+use App\Models\TicketSatisfactionSurvey;
 
 class TicketController extends Controller
 {
@@ -111,7 +113,7 @@ class TicketController extends Controller
 
     public function show(Ticket $ticket)
     {
-        $ticket->load(['interactions', 'assignee', 'statusHistories.changedBy']);
+        $ticket->load(['interactions', 'assignee', 'statusHistories.changedBy', 'satisfactionSurvey']);
 
         $agents = User::orderBy('name')->get();
         $statuses = $this->ticketService->getStatuses();
@@ -201,4 +203,31 @@ class TicketController extends Controller
                 ]);
         }
     }
+    public function storeSatisfactionSurvey(StoreTicketSatisfactionSurveyRequest $request, Ticket $ticket)
+{
+    if (!in_array($ticket->status, ['Resuelto', 'Cerrado'])) {
+        return back()->withErrors([
+            'survey' => 'Solo se puede registrar una encuesta cuando el ticket está Resuelto o Cerrado.',
+        ]);
+    }
+
+    if ($ticket->satisfactionSurvey) {
+        return back()->withErrors([
+            'survey' => 'Este ticket ya tiene una encuesta de satisfacción registrada.',
+        ]);
+    }
+
+    TicketSatisfactionSurvey::create([
+        'ticket_id' => $ticket->id,
+        'customer_id' => $ticket->customer_id,
+        'rating' => $request->validated()['rating'],
+        'comment' => $request->validated()['comment'] ?? null,
+        'created_by' => auth()->id(),
+        'answered_at' => now(),
+    ]);
+
+    return redirect()
+        ->route('tickets.show', $ticket)
+        ->with('success', 'Encuesta de satisfacción registrada correctamente.');
+}
 }
