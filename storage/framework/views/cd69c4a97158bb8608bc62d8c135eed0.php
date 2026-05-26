@@ -119,4 +119,4 @@
         </div>
     </nav>
 <?php endif; ?>
-<?php /**PATH C:\xampp\htdocs\crm-laravel_ing_software\vendor\laravel\framework\src\Illuminate\Pagination/resources/views/tailwind.blade.php ENDPATH**/ ?>
+<?php /**PATH C:\xampp\htdocs\laravel\crm\vendor\laravel\framework\src\Illuminate\Pagination/resources/views/tailwind.blade.php ENDPATH**/ ?>
